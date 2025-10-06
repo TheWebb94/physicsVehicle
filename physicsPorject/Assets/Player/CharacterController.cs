@@ -8,7 +8,7 @@ public class CharacterController : MonoBehaviour
     float maxSpeed = 4000;
     private Rigidbody rb;
     private bool isGrounded;
-    public float jumpForce = 100;
+    [SerializeField] private float jumpForce = 100;
 
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
