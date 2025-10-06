@@ -292,9 +292,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3661042451894607604, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1246626523}
-    - targetCorrespondingSourceObject: {fileID: 3661042451894607604, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1483529160}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7847942020674845508, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
       insertIndex: -1
@@ -558,53 +555,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1105068184
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1105068186}
-  - component: {fileID: 1105068185}
-  m_Layer: 0
-  m_Name: cubespawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1105068185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105068184}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d70979a39cd49148a14b447afe09971, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cubesParent: {fileID: 0}
-  cubeSize: 0.05
-  gridWidth: 1.5
---- !u!4 &1105068186
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105068184}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.72, y: 4.32, z: 7.14}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 1
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1246626522
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,7 +673,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1483529160}
   - component: {fileID: 1483529162}
-  - component: {fileID: 1483529161}
+  - component: {fileID: 1483529163}
   m_Layer: 0
   m_Name: DragEmitters
   m_TagString: Untagged
@@ -740,24 +690,12 @@ Transform:
   m_GameObject: {fileID: 1483529159}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 28.543367, y: -1.5064957, z: 1.8036108}
+  m_LocalPosition: {x: 0.07336807, y: -1.5064957, z: 1.8036108}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 118998153}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1483529161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1483529159}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8c371c8b8f154547844a4f44f179e40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1483529162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -770,9 +708,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d70979a39cd49148a14b447afe09971, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubesParent: {fileID: 0}
-  cubeSize: 0.05
-  gridWidth: 1.5
+  cubesParent: {fileID: 1483529160}
+  cubeSize: 0.1
+  gridWidth: 1
+--- !u!114 &1483529163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483529159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2010893f3a48a9f468c7938caee7357a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rb: {fileID: 118998154}
+  leadDistance: 5
+  faceMovement: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -780,4 +733,4 @@ SceneRoots:
   - {fileID: 880396342}
   - {fileID: 338962425}
   - {fileID: 258074297}
-  - {fileID: 1105068186}
+  - {fileID: 1483529160}
