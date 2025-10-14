@@ -5,7 +5,6 @@ public class FollowMovementVector : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private float leadDistance = 2f;
-    [SerializeField] private bool faceMovement = false;
 
     // Keep a fallback direction for when the player is nearly stationary
     private Vector3 lastDir = Vector3.forward;
