@@ -35,7 +35,6 @@ public class cubeGenerator : MonoBehaviour
                 cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
 
                 // Add the cube to the array
-
                 cubesArray[index] = cube;
                 index++;
             }

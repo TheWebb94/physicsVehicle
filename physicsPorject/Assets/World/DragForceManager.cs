@@ -22,11 +22,6 @@ public class DragForceManager : MonoBehaviour
         if (generator != null)
         {
             cubesArray = generator.cubesArray;
-            Debug.Log($"Linked {cubesArray.Length} cubes from generator.");
-        }
-        else
-        {
-            Debug.LogWarning("No cubeGenerator found!");
         }
     }
 
@@ -51,7 +46,6 @@ public class DragForceManager : MonoBehaviour
         Debug.Log($"Hits with nodes: {hitCount}");
         if (cubesArray == null || cubesArray.Length == 0)
         {
-            Debug.LogWarning("Cube array is empty in DragForceManager!");
             return;
         }
 
