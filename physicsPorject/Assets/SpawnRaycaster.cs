@@ -3,7 +3,7 @@ using static UnityEngine.UI.Image;
 
 public class SpawnRaycaster : MonoBehaviour
 {
-    [SerializeField] private float rayLength = 3f;
+    [SerializeField] private float rayLength = 5f;
     public bool hitPlayer = false;
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private float originOffset = 0.05f;
