@@ -8,6 +8,7 @@ public class SpawnRaycaster : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private float originOffset = 0.05f;
     public Vector3 vectorNormal;
+    [SerializeField] public bool drawDebugLines;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -24,15 +25,21 @@ public class SpawnRaycaster : MonoBehaviour
         if (UnityEngine.Physics.Raycast(origin, dir, out RaycastHit hit, rayLength, playerMask, QueryTriggerInteraction.Collide))
         {
             hitPlayer = hit.transform.CompareTag("Player");
-            Debug.DrawRay(origin, dir * hit.distance, Color.green);
             vectorNormal = hit.normal;
+            if (drawDebugLines)
+            {
+                Debug.DrawRay(origin, dir * hit.distance, Color.green);
+            }
+                hitPlayer = true;
 
-            hitPlayer = true;
         }
         else
         {
             hitPlayer = false;
-            Debug.DrawRay(origin, dir * rayLength, Color.red);
+            if (drawDebugLines)
+            { 
+                Debug.DrawRay(origin, dir * rayLength, Color.red);
+            }
         }
 
     }
