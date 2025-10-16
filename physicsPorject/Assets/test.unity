@@ -179,8 +179,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gravity: -9.81
   rb: {fileID: 118998154}
+  playerDragForce: {fileID: 0}
   A: 0
-  Cd: 0
+  dragCoefficient: 0
 --- !u!1001 &258074297
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -192,6 +193,10 @@ PrefabInstance:
     - target: {fileID: 983169133374177736, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
       propertyPath: m_Name
       value: Plane
+      objectReference: {fileID: 0}
+    - target: {fileID: 983169133374177736, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1867096881086089433, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -233,14 +238,58 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2495492214060034577, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2506274456896819737, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3291901365114122812, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3308002329190027365, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 3314808593403878710, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 13400000, guid: 6b0f4be496cb0ad42bdebafdf5d4d192, type: 2}
+    - target: {fileID: 4712678915252031312, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5731588317824776150, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5934968175596696148, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7678736991433045575, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7896479204697650151, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 8799963154472147305, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 13400000, guid: 6b0f4be496cb0ad42bdebafdf5d4d192, type: 2}
+    - target: {fileID: 8950433419238424152, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8970972479510412156, guid: cabaf23844f4bba4f9b3279a6c73035c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -266,6 +315,10 @@ PrefabInstance:
       propertyPath: jumpForce
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: -240341328654441101, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
+      propertyPath: floorMask.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 1009139592062709363, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -284,7 +337,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3661042451894607604, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 42.8
+      value: 66.34
       objectReference: {fileID: 0}
     - target: {fileID: 3661042451894607604, guid: df59ac80241ccbd4498eed0860c9e4b3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -713,7 +766,7 @@ GameObject:
   - component: {fileID: 1335705942}
   - component: {fileID: 1335705941}
   - component: {fileID: 1335705940}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Terrain
   m_TagString: Floor
   m_Icon: {fileID: 0}
@@ -876,6 +929,10 @@ MonoBehaviour:
   rb: {fileID: 118998154}
   cubesParent: {fileID: 1483529160}
   cubesObject: {fileID: 1483529159}
+  hitCount: 0
+  rayLength: 3
+  crossSectionalArea: 0
+  drawDebugLines: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
