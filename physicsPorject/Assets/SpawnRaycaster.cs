@@ -7,6 +7,7 @@ public class SpawnRaycaster : MonoBehaviour
     public bool hitPlayer = false;
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private float originOffset = 0.05f;
+    public Vector3 vectorNormal;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -24,6 +25,7 @@ public class SpawnRaycaster : MonoBehaviour
         {
             hitPlayer = hit.transform.CompareTag("Player");
             Debug.DrawRay(origin, dir * hit.distance, Color.green);
+            vectorNormal = hit.normal;
 
             hitPlayer = true;
         }

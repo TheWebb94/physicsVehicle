@@ -9,7 +9,9 @@ public class DragForceManager : MonoBehaviour
     [SerializeField] private Transform cubesParent;
     [SerializeField] private GameObject cubesObject;
     private GameObject[] cubesArray;
-
+    private Vector3 cumulativeNormals;
+    private Vector3 averageVectorNormal;
+    private int hitCount;
 
     void Awake()
     {
@@ -29,11 +31,25 @@ public class DragForceManager : MonoBehaviour
     void FixedUpdate()
     {
         CountNodeHits();
+        FindCumulativeNormal();
+        averageVectorNormal = cumulativeNormals / hitCount;
+    }
+
+    private void FindCumulativeNormal()
+    {
+
+       foreach(var cube in cubesArray)
+        {
+            var raycaster = cube.GetComponent<SpawnRaycaster>();
+            if (raycaster != null && raycaster.hitPlayer)
+            {
+                cumulativeNormals += raycaster.vectorNormal;
+            }
+        }
     }
 
     private void CountNodeHits()
     {
-        int hitCount = 0;
         foreach (var cube in cubesArray)
         {
             var raycaster = cube.GetComponent<SpawnRaycaster>();
