@@ -1,3 +1,4 @@
+using System;
 using System.Linq.Expressions;
 using UnityEngine;
 
@@ -12,22 +13,47 @@ public class CharacterController : MonoBehaviour
 
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
+    int currentController;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         isGrounded = false;
+        currentController = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey (KeyCode.W))
+        //controllers need class with childs inheriting fromm it
+
+        //make a new parent class called controllers
+                //ceach inheriting class has its own implementation of the controls
+        switch (currentController)
+        {
+            case (int)characterController.Player:
+                UsePlayerController();
+                return;
+            case (int)characterController.LandRover:
+                return;
+            case (int)characterController.RaceCar:
+                return;
+            default:
+                UsePlayerController();
+                return;
+
+        }
+    }
+        
+
+    private void UsePlayerController()
+    {
+        if (Input.GetKey(KeyCode.W))
         {
             rb.AddForce(transform.forward * acceleration * Time.deltaTime, ForceMode.Acceleration);
 
-            if(rb.linearVelocity.magnitude > maxSpeed)
+            if (rb.linearVelocity.magnitude > maxSpeed)
             {
                 rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
             }
@@ -70,9 +96,10 @@ public class CharacterController : MonoBehaviour
         }
 
         float h = horizontalMouseSpeed * Input.GetAxis("Mouse X");
-        
+
         transform.Rotate(0, h, 0);
     }
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -92,5 +119,10 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-
+    enum characterController
+    {
+        Player,
+        LandRover,
+        RaceCar,
+    }
 }

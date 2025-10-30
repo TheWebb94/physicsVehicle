@@ -37,7 +37,6 @@ public class Physics : MonoBehaviour
         float dragMagnitude = 0.5f * airDensity * VelocitySquared() * dragCoefficient * (float)GetCrossSectionalArea();
         rb.AddForce(-rb.linearVelocity * dragMagnitude);
 
-        Debug.Log(dragMagnitude);
     }
 
     private float VelocitySquared()
@@ -49,6 +48,7 @@ public class Physics : MonoBehaviour
     {
         var playerRef = UnityEngine.Object.FindFirstObjectByType<DragForceManager>();
         playerDragForce = playerRef;
+        Debug.Log(playerDragForce.crossSectionalArea);
 
         return  playerDragForce.crossSectionalArea;
     }
