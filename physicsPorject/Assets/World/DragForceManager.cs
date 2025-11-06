@@ -100,7 +100,7 @@ public class DragForceManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Hits with nodes: {hitCount}");
+        //Debug.Log($"Hits with nodes: {hitCount}");
         if (cubesArray == null || cubesArray.Length == 0)
         {
             return;

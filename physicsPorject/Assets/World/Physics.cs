@@ -11,13 +11,7 @@ public class Physics : MonoBehaviour
     public float A;         // A (cross-sectional area) = needs claculation based on player model
     public float dragCoefficient;        // drag coefficient
     private float airDensity;
-
-
-
-   
-
-    
-
+    [SerializeField] private bool useComplexDrag;
     void Awake()
     {
         airDensity = 1.225f;        // p (air density) = 1.225 kg/m^3 at sea level 
@@ -25,7 +19,6 @@ public class Physics : MonoBehaviour
                                                             = 0.47 (approximate for a sphere)
                                                             = 1.05 (approximate for a cube)
                                                             = 0.28 - 0.35 (approximate for a car) */
-
     }
 
     void FixedUpdate()
@@ -33,10 +26,20 @@ public class Physics : MonoBehaviour
         //Gravity
         rb.AddForce(new Vector3(0, gravity, 0), ForceMode.Acceleration);
 
-        //drag equation Fd = 0.5 * p * v^2 * Cd * A
-        float dragMagnitude = 0.5f * airDensity * VelocitySquared() * dragCoefficient * (float)GetCrossSectionalArea();
-        rb.AddForce(-rb.linearVelocity * dragMagnitude);
+        
+        float dragMagnitude;
 
+        if(useComplexDrag)
+        {
+            //drag equation Fd = 0.5 * p * v^2 * Cd * A
+            dragMagnitude = 0.5f * airDensity * VelocitySquared() * dragCoefficient * (float)GetCrossSectionalArea();
+        }
+        else
+        {
+            dragMagnitude = 0.1f; //simple constant drag
+        }
+
+        rb.AddForce(-rb.linearVelocity * dragMagnitude);
     }
 
     private float VelocitySquared()
@@ -48,7 +51,7 @@ public class Physics : MonoBehaviour
     {
         var playerRef = UnityEngine.Object.FindFirstObjectByType<DragForceManager>();
         playerDragForce = playerRef;
-        Debug.Log(playerDragForce.crossSectionalArea);
+        //Debug.Log(playerDragForce.crossSectionalArea);
 
         return  playerDragForce.crossSectionalArea;
     }

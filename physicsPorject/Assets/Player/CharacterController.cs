@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using UnityEngine;
+using PhysicsCar;
 
 public class CharacterController : MonoBehaviour
 {
@@ -13,46 +14,71 @@ public class CharacterController : MonoBehaviour
 
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
-    int currentController;
+    [SerializeField] bool isInCar;
+    VehicleController vc;
+    Animator pa;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         isGrounded = false;
-        currentController = 0;
+        isInCar = false;
+        pa = GetComponent<Animator>();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        //controllers need class with childs inheriting fromm it
+        DetermineController();
+        AnimationHandler();
+    }
 
-        //make a new parent class called controllers
-                //ceach inheriting class has its own implementation of the controls
-        switch (currentController)
+    private void AnimationHandler()
+    {
+        if (!isInCar)
         {
-            case (int)characterController.Player:
-                UsePlayerController();
-                return;
-            case (int)characterController.LandRover:
-                return;
-            case (int)characterController.RaceCar:
-                return;
-            default:
-                UsePlayerController();
-                return;
-
+            switch (rb.linearVelocity.magnitude)
+            {
+                case < 0.01f:
+                    pa.SetBool("isWalking", false);
+                    pa.SetBool("isRunning", false);
+                    break;
+                case >= 0.01f and < 10f:
+                    pa.SetBool("isWalking", true);
+                    pa.SetBool("isRunning", false);
+                    break;
+                case >= 10f:
+                    pa.SetBool("isRunning", true);
+                    pa.SetBool("isWalking", false);
+                    break;
+            }
         }
     }
-        
+
+    private void DetermineController()
+    {
+        if (!isInCar)
+        {
+            UsePlayerController();
+            pa.SetBool("isDriving", false);
+        }
+        else
+        {
+            // Use Vehicle Controller
+            vc.UseVehicleController();
+            pa.SetBool("isDriving", true);
+        }
+        Debug.Log(vc.throttle);
+    }
 
     private void UsePlayerController()
     {
         if (Input.GetKey(KeyCode.W))
         {
             rb.AddForce(transform.forward * acceleration * Time.deltaTime, ForceMode.Acceleration);
-
+            
             if (rb.linearVelocity.magnitude > maxSpeed)
             {
                 rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
@@ -119,6 +145,7 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    
     enum characterController
     {
         Player,
