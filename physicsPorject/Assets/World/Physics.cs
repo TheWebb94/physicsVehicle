@@ -15,7 +15,7 @@ public class Physics : MonoBehaviour
     [SerializeField] private bool useComplexDrag;
     [SerializeField] CharacterController playerRef;
 
-    public float friction = 5f;
+    public float friction = 50f;
 
     void Awake()
     {
