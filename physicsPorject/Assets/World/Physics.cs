@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -12,6 +13,10 @@ public class Physics : MonoBehaviour
     public float dragCoefficient;        // drag coefficient
     private float airDensity;
     [SerializeField] private bool useComplexDrag;
+    [SerializeField] CharacterController playerRef;
+
+    public float friction = 5f;
+
     void Awake()
     {
         airDensity = 1.225f;        // p (air density) = 1.225 kg/m^3 at sea level 
@@ -23,13 +28,32 @@ public class Physics : MonoBehaviour
 
     void FixedUpdate()
     {
+        ApplyGravity();
+        ApplyDrag();
+        ApplyFriction();
+    }
+
+    private void ApplyFriction()
+    {
+
+        if (playerRef.isGrounded)
+        {
+            Vector3 frictionForce = -rb.linearVelocity.normalized * friction;
+            rb.AddForce(frictionForce, ForceMode.Acceleration);
+        }
+    }
+
+    private void ApplyGravity()
+    {
         //Gravity
         rb.AddForce(new Vector3(0, gravity, 0), ForceMode.Acceleration);
+    }
 
-        
+    private void ApplyDrag()
+    {
         float dragMagnitude;
 
-        if(useComplexDrag)
+        if (useComplexDrag)
         {
             //drag equation Fd = 0.5 * p * v^2 * Cd * A
             dragMagnitude = 0.5f * airDensity * VelocitySquared() * dragCoefficient * (float)GetCrossSectionalArea();

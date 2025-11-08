@@ -8,7 +8,7 @@ public class VehicleController : MonoBehaviour
         [Range(-1f, 1f)] public float steering;
         public float brakeFactor = 2f;
         public float reverseSpeed = 0.05f;
-   public bool handbrake;
+        public bool handbrake;
 
     void Update()
         {

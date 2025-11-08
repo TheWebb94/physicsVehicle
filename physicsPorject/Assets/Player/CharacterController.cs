@@ -9,14 +9,19 @@ public class CharacterController : MonoBehaviour
     float acceleration = 1000;
     float maxSpeed = 4000;
     private Rigidbody rb;
-    private bool isGrounded;
-    [SerializeField] private float jumpForce = 5;
+    public bool isGrounded;
+    [SerializeField] private float jumpForce = 20;
 
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
     [SerializeField] bool isInCar;
-    VehicleController vc;
+    [SerializeField] VehicleController vc;
     Animator pa;
+
+    public float hoverHeight = 1.2f;     // how high above ground to float
+    public float hoverStrength = 75f;    // how strong the lift is
+    public float gravity = -9.81f;       // fallback gravity
+    public LayerMask groundMask = 7;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -25,7 +30,7 @@ public class CharacterController : MonoBehaviour
         isGrounded = false;
         isInCar = false;
         pa = GetComponent<Animator>();
-        
+        vc = GetComponent<VehicleController>();
     }
 
     // Update is called once per frame
@@ -33,6 +38,40 @@ public class CharacterController : MonoBehaviour
     {
         DetermineController();
         AnimationHandler();
+        Debug.Log(isGrounded);
+    }
+
+    private void FixedUpdate()
+    {
+        HoverOffGround();
+        ResetSpeedIfSlow();
+    }
+
+    private void ResetSpeedIfSlow()
+    {
+        if( rb.linearVelocity.magnitude < 0.01f && !isInCar)
+        {
+            rb.linearVelocity = Vector3.zero;
+        }
+    }
+
+    private void HoverOffGround()
+    {
+        // Hover Mechanic
+        RaycastHit hit;
+        if (UnityEngine.Physics.Raycast(transform.position, -Vector3.up, out hit, hoverHeight, groundMask))
+        {
+            float hoverTolerance = hoverHeight - hit.distance;
+            float upwardSpeed = rb.linearVelocity.y;
+            float lift = hoverTolerance * hoverStrength - upwardSpeed * 5f;
+            rb.AddForce(Vector3.up * lift, ForceMode.Acceleration);
+            isGrounded = true;
+
+        }
+        else
+        {
+            rb.AddForce(Vector3.up * gravity, ForceMode.Acceleration);
+        }
     }
 
     private void AnimationHandler()
@@ -41,7 +80,7 @@ public class CharacterController : MonoBehaviour
         {
             switch (rb.linearVelocity.magnitude)
             {
-                case < 0.01f:
+                case < 0.1f:
                     pa.SetBool("isWalking", false);
                     pa.SetBool("isRunning", false);
                     break;
@@ -49,7 +88,7 @@ public class CharacterController : MonoBehaviour
                     pa.SetBool("isWalking", true);
                     pa.SetBool("isRunning", false);
                     break;
-                case >= 10f:
+                case >= 20f:
                     pa.SetBool("isRunning", true);
                     pa.SetBool("isWalking", false);
                     break;
@@ -125,26 +164,6 @@ public class CharacterController : MonoBehaviour
 
         transform.Rotate(0, h, 0);
     }
-
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Floor" && isGrounded == false)
-        {
-            Debug.Log("grounded");
-            isGrounded = true;
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.tag == "Floor")
-        {
-            isGrounded = false;
-            Debug.Log("notgrounded)");
-        }
-    }
-
     
     enum characterController
     {
