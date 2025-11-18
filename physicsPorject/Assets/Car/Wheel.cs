@@ -9,19 +9,28 @@ public class Wheel : MonoBehaviour
     [Header("Suspension")]
     [SerializeField] private float restLength = 0.35f;        // meters
     [SerializeField] private float springStrength = 35000f;   // N/m
-    [SerializeField] private float damperStrength = 4500f;    // N·s/m
+    [SerializeField] private float damperStrength = 4500f;    // Nï¿½s/m
     [SerializeField] private float wheelRadius = 0.34f;       // meters
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private bool drawDebug;
 
+    [Header("Tire Grip")]
+    [SerializeField] private float lateralGripCoefficient = 12000f;     // Lateral grip strength (N per m/s of slip)
+    [SerializeField] private float longitudinalGripCoefficient = 10000f; // Forward/back grip strength
+    [SerializeField] private float rollingResistance = 100f;             // Resistance when rolling
+    [SerializeField] private bool applyTireForces = true;                // Toggle tire forces on/off
+
     private Rigidbody carBody;
     private GameObject wheelVisual;
     private float lastLength;
+    private VehicleController vehicleController;
 
     private void Awake()
     {
         // Find the car rigidbody on a parent
         carBody = GetComponentInParent<Rigidbody>();
+        // Find the vehicle controller on a parent
+        vehicleController = GetComponentInParent<VehicleController>();
     }
 
     private void Start()
@@ -39,8 +48,6 @@ public class Wheel : MonoBehaviour
     private void FixedUpdate()
     {
         ApplySuspensionForces();
-
-       
     }
 
     private void ApplySuspensionForces()
@@ -70,7 +77,13 @@ public class Wheel : MonoBehaviour
             // Apply upwards along the strut axis at the attach point
             carBody.AddForceAtPosition(transform.up * totalForce, transform.position, ForceMode.Force);
 
-            // Move visual to match strut length (negative local Y goes “down” along -up)
+            // Apply tire grip forces if enabled
+            if (applyTireForces)
+            {
+                ApplyTireForces(hit.point, totalForce);
+            }
+
+            // Move visual to match strut length (negative local Y goes ï¿½downï¿½ along -up)
             if (wheelVisual)
             {
                 var lp = wheelVisual.transform.localPosition;
@@ -101,6 +114,70 @@ public class Wheel : MonoBehaviour
         }
 
         lastLength = currentLength;
+    }
+
+    private void ApplyTireForces(Vector3 contactPoint, float normalForce)
+    {
+        if (carBody == null) return;
+
+        // Calculate the velocity of the tire at the contact point
+        Vector3 tireWorldVelocity = carBody.GetPointVelocity(contactPoint);
+
+        // Project velocity onto wheel's forward and right axes
+        float forwardSpeed = Vector3.Dot(tireWorldVelocity, transform.forward);
+        float lateralSpeed = Vector3.Dot(tireWorldVelocity, transform.right);
+
+        // Calculate load factor (how much weight is on this wheel)
+        // More load = more grip, but with diminishing returns (Pacejka tire model simplified)
+        float expectedLoadPerWheel = (carBody.mass * Mathf.Abs(Physics.gravity.y)) / 4f;
+        float loadFactor = Mathf.Sqrt(Mathf.Clamp(normalForce / expectedLoadPerWheel, 0f, 2f));
+
+        // === LATERAL FORCES (side-to-side grip for turning) ===
+        // Resistance to sliding sideways - this is what makes the car turn
+        Vector3 lateralForce = -transform.right * lateralSpeed * lateralGripCoefficient * loadFactor;
+
+        // === LONGITUDINAL FORCES (forward/backward grip) ===
+        Vector3 longitudinalForce = Vector3.zero;
+
+        if (vehicleController != null)
+        {
+            // Get throttle and steering input from vehicle controller
+            float throttle = vehicleController.throttle;
+            float steering = vehicleController.steering;
+
+            // Drive force (when accelerating)
+            if (throttle > 0.01f)
+            {
+                // Apply drive force in the forward direction
+                // Reduced by current forward speed to simulate wheel slip at high speeds
+                float driveForce = throttle * longitudinalGripCoefficient * loadFactor;
+                longitudinalForce += transform.forward * driveForce;
+            }
+
+            // Braking force (when throttle is negative from braking)
+            if (throttle < -0.01f)
+            {
+                // Apply brake force opposite to current velocity
+                float brakeForce = Mathf.Abs(throttle) * longitudinalGripCoefficient * loadFactor;
+                longitudinalForce -= transform.forward * forwardSpeed * brakeForce * 0.1f;
+            }
+        }
+
+        // Rolling resistance (always opposes motion)
+        Vector3 rollingResistanceForce = -tireWorldVelocity.normalized * rollingResistance * loadFactor;
+
+        // Combine all tire forces
+        Vector3 totalTireForce = lateralForce + longitudinalForce + rollingResistanceForce;
+
+        // Apply the combined force at the contact point
+        carBody.AddForceAtPosition(totalTireForce, contactPoint, ForceMode.Force);
+
+        // Debug visualization
+        if (drawDebug)
+        {
+            Debug.DrawRay(contactPoint, lateralForce / 1000f, Color.blue);      // Blue = lateral grip
+            Debug.DrawRay(contactPoint, longitudinalForce / 1000f, Color.yellow); // Yellow = drive/brake
+        }
     }
 
     private Quaternion GetRotationForWheelType()
