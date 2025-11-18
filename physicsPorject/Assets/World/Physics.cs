@@ -13,9 +13,10 @@ public class Physics : MonoBehaviour
     public float dragCoefficient;        // drag coefficient
     private float airDensity;
     [SerializeField] private bool useComplexDrag;
+    [SerializeField] private bool isPlayer;
     [SerializeField] CharacterController playerRef;
 
-    public float friction = 50f;
+    public float friction = 5f;
 
     void Awake()
     {
@@ -35,11 +36,22 @@ public class Physics : MonoBehaviour
 
     private void ApplyFriction()
     {
-
-        if (playerRef.isGrounded)
+        if(isPlayer)
         {
-            Vector3 frictionForce = -rb.linearVelocity.normalized * friction;
+            if (playerRef.isGrounded)
+            {
+                Vector3 frictionForce = new Vector3 (-rb.linearVelocity.normalized.x, 0 , -rb.linearVelocity.normalized.z) * friction;
+                rb.AddForce(frictionForce, ForceMode.Acceleration);
+            }
+
+        }
+        else
+        {
+            // Apply friction for non-player objects if needed
+            //Vector3 frictionForce = -rb.linearVelocity.normalized * friction;
+            Vector3 frictionForce = new Vector3(-rb.linearVelocity.x, 0, -rb.linearVelocity.z) * friction;
             rb.AddForce(frictionForce, ForceMode.Acceleration);
+
         }
     }
 

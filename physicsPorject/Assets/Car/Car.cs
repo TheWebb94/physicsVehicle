@@ -2,58 +2,70 @@ using System;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-namespace PhysicsCar
-{
-
-    public class VehicleController : MonoBehaviour
+    public class Car : MonoBehaviour
     {
-        [Range(0f,1f)] public float throttle;
+        [Range(0f, 1f)] public float throttle;
         public float throttleAccellaration = 0.1f;
         [Range(-1f, 1f)] public float steering;
         public float brakeFactor = 2f;
         public bool handbrake;
 
-      
-        public void UseVehicleController()
-        {
-            //decay throttle if not accellerating
-            if (throttle > 0f)
-            {
-                throttle -= throttleAccellaration / 2f * Time.deltaTime;
-            }
+        [SerializeField] private GameObject player;  
+        private VehicleController vc;
+    private Rigidbody rb;
+        //private Engine engine;
+        //private Suspension suspension;
+        private Wheel[] wheels;
+        public bool isPlayerInCar;
 
-            //accellerate by increasing throttle
+
+    private void Start()
+    {
+            rb = GetComponent<Rigidbody>();
+            rb.mass = 1500f; 
+            //engine = GetComponent<Engine>();
+            
+
+            vc = GetComponent<VehicleController>();
+            wheels = GetComponentsInChildren<Wheel>();
+            Debug.Log(wheels.Length + "wheels fond");       
+    }
+    private void FixedUpdate()
+    {       //testin sspension
+
+        if (isPlayerInCar)
+        {
+
+
+
             if (Input.GetKey(KeyCode.W))
             {
-                throttle += throttleAccellaration * Time.deltaTime;
-                if (throttle > 1f)
-                {
-                    throttle = 1f;
-                }
+                rb.AddForce(transform.forward * 500f * Time.fixedDeltaTime, ForceMode.Acceleration);
             }
-
-            // deccellerate by decreasing throttle
-            if (Input.GetKey(KeyCode.S))
-            {
-                throttle -= throttleAccellaration * brakeFactor * Time.deltaTime;
-            }
-
-
-            if (Input.GetKey(KeyCode.A))
-            {
-
-            }
-
-            if (Input.GetKey(KeyCode.D))
-            {
-
-            }
-
-            if (Input.GetKey(KeyCode.Space))
-            {
-
-            }
+            throttle = vc.throttle;
+            steering = vc.steering;
+            brakeFactor = vc.brakeFactor;
+            //ApplyThrottle();
+            //ApplySteering();
+            //ApplyBrakes();
         }
-    }  
-}
+    }
 
+    /*private void ApplyThrottle()
+    {
+            float targetThrottle = throttle;
+            float currentThrottle = engine.currentThrottle;
+            if (targetThrottle > currentThrottle)
+            {
+                currentThrottle += throttleAccellaration * Time.fixedDeltaTime;
+                currentThrottle = Mathf.Min(currentThrottle, targetThrottle);
+            }
+            else if (targetThrottle < currentThrottle)
+            {
+                currentThrottle -= throttleAccellaration * Time.fixedDeltaTime;
+                currentThrottle = Mathf.Max(currentThrottle, targetThrottle);
+            }
+            engine.currentThrottle = currentThrottle;
+            .ApplyEngineForce();
+    } */
+}

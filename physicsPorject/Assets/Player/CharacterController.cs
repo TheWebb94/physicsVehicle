@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
+using Unity.VisualScripting;
 using UnityEngine;
-using PhysicsCar;
 
 public class CharacterController : MonoBehaviour
 {
@@ -15,7 +15,8 @@ public class CharacterController : MonoBehaviour
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
     [SerializeField] bool isInCar;
-    [SerializeField] VehicleController vc;
+    private GameObject currentVehicle;
+    private GameObject? nearbyCar;
     Animator pa;
 
     private float yInput;
@@ -32,7 +33,6 @@ public class CharacterController : MonoBehaviour
         isGrounded = false;
         isInCar = false;
         pa = GetComponent<Animator>();
-        vc = GetComponent<VehicleController>();
     }
 
     // Update is called once per frame
@@ -40,8 +40,6 @@ public class CharacterController : MonoBehaviour
     {
         DetermineController();
         AnimationHandler();
-        Debug.Log(isGrounded);
-
 
     }
 
@@ -96,7 +94,6 @@ public class CharacterController : MonoBehaviour
                     break;
 
             }
-            Debug.Log(rb.linearVelocity.magnitude);
 
             pa.SetFloat("RunSpeed", rb.linearVelocity.magnitude);
         }
@@ -112,16 +109,13 @@ public class CharacterController : MonoBehaviour
         else
         {
             // Use Vehicle Controller
-            vc.UseVehicleController();
+            currentVehicle.GetComponent<VehicleController>().UseVehicleController(currentVehicle);
             pa.SetBool("isDriving", true);
         }
     }
 
     private void UsePlayerController()
     {
-
-        
-
         if (Input.GetKey(KeyCode.W))
         {
             rb.AddForce(transform.forward * acceleration * Time.deltaTime, ForceMode.Acceleration);
@@ -167,22 +161,43 @@ public class CharacterController : MonoBehaviour
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             isGrounded = false;
         }
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            if(nearbyCar != null  && !isInCar)
+            {
+                isInCar = true;
+                currentVehicle = nearbyCar;
+                Debug.Log("Entered Car " + currentVehicle);
+            }
+           
+
+        }
     }
 
-    
+    //check overlap with spherecollider for car entry
+    void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Car")
+        {
+            nearbyCar = collision.gameObject;
+   
+        }
+    }
 
-   private void OnCollisionStay(Collision collision)
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.tag == "Car")
+        {
+            nearbyCar = null;
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "Floor") 
         {
             isGrounded = true;
         }
-    }
-
-    enum characterController
-    {
-        Player,
-        LandRover,
-        RaceCar,
     }
 }
