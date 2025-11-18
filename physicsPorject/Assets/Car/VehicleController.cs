@@ -16,7 +16,7 @@ public class VehicleController : MonoBehaviour
     public float steerDeadzone = 0.02f;
 
     // Movement parameters
-    public float motorForce = 1500f;           // Force applied when accelerating
+    public float motorForce = 15000f;          // Force applied when accelerating
     public float maxSpeed = 50f;               // Maximum vehicle speed
     public float steeringSpeed = 2f;           // How fast steering adjusts
     public float maxSteeringAngle = 30f;       // Maximum wheel turn angle in degrees

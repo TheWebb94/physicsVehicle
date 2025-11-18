@@ -33,21 +33,40 @@ public class CharacterController : MonoBehaviour
         isGrounded = false;
         isInCar = false;
         pa = GetComponent<Animator>();
+        Camera.main.GetComponent<CameraFollow>().target = rb.transform;
     }
 
     // Update is called once per frame
     void Update()
     {
-        DetermineController();
         AnimationHandler();
 
+        SetPlayerController();
     }
-
+    
     private void FixedUpdate()
     {
         ResetSpeedIfSlow();
         RotatePlayerWithMouseMovement();
+        SetVehicleController();
+    }
+    
+    private void SetPlayerController()
+    {
+        if (!isInCar)
+        {
+            UsePlayerController();
+            pa.SetBool("isDriving", false);
+        }
+    }
 
+    private void SetVehicleController()
+    {
+        if (isInCar)
+        {
+            currentVehicle.GetComponent<VehicleController>().UseVehicleController(currentVehicle);
+            pa.SetBool("isDriving", true);
+        }
     }
 
     private void RotatePlayerWithMouseMovement()
@@ -99,21 +118,6 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-    private void DetermineController()
-    {
-        if (!isInCar)
-        {
-            UsePlayerController();
-            pa.SetBool("isDriving", false);
-        }
-        else
-        {
-            // Use Vehicle Controller
-            currentVehicle.GetComponent<VehicleController>().UseVehicleController(currentVehicle);
-            pa.SetBool("isDriving", true);
-        }
-    }
-
     private void UsePlayerController()
     {
         if (Input.GetKey(KeyCode.W))
@@ -162,37 +166,53 @@ public class CharacterController : MonoBehaviour
             isGrounded = false;
         }
 
-        if(Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            if(nearbyCar != null  && !isInCar)
+            if (nearbyCar != null && !isInCar)
             {
-                isInCar = true;
-                currentVehicle = nearbyCar;
-                Debug.Log("Entered Car " + currentVehicle);
+                Debug.Log("E key pressed");  
+                EnterCar();
             }
-           
-
         }
     }
-
-    //check overlap with spherecollider for car entry
-    void OnCollisionEnter(Collision collision)
+    
+    private void EnterCar()
     {
-        if(collision.gameObject.tag == "Car")
-        {
-            nearbyCar = collision.gameObject;
-   
-        }
+        isInCar = true;
+        currentVehicle = nearbyCar;
+
+        Camera.main.GetComponent<CameraFollow>().target = currentVehicle.transform;
+
+        
+        // Disable player movement physics
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        // Hide player model if needed
+        mesh.SetActive(false);
+
+        
     }
 
-    private void OnCollisionExit(Collision collision)
+    
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.tag == "Car")
+        if (other.CompareTag("Car"))
         {
-            nearbyCar = null;
+            nearbyCar = other.gameObject;
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Car"))
+        {
+            if (nearbyCar == other.gameObject)
+                nearbyCar = null;
+        }
+    }
+
+    //check for nearbyu car or floor 
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "Floor") 
