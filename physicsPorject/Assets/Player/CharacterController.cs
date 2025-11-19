@@ -8,14 +8,14 @@ public class CharacterController : MonoBehaviour
 
     float acceleration = 1000;
     float maxSpeed = 4000;
-    private Rigidbody rb;
+    public Rigidbody rb;
     public bool isGrounded;
     [SerializeField] private float jumpForce = 20;
 
     float verticalMouseSpeed = 2.0f;
     float horizontalMouseSpeed = 2.0f;
-    [SerializeField] bool isInCar;
-    private GameObject currentVehicle;
+    public bool isInCar;
+    public GameObject currentVehicle;
     private GameObject? nearbyCar;
     Animator pa;
 
@@ -24,7 +24,7 @@ public class CharacterController : MonoBehaviour
     public float jumpHeightTolerance = 1f;     // how high above ground to float
     public LayerMask groundMask = 7;
 
-    [SerializeField] private GameObject mesh;
+    public GameObject mesh;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -33,7 +33,7 @@ public class CharacterController : MonoBehaviour
         isGrounded = false;
         isInCar = false;
         pa = GetComponent<Animator>();
-        Camera.main.GetComponent<CameraFollow>().target = rb.transform;
+        Camera.main.GetComponent<CameraFollow>().target = this.gameObject;
     }
 
     // Update is called once per frame
@@ -42,6 +42,7 @@ public class CharacterController : MonoBehaviour
         AnimationHandler();
 
         SetPlayerController();
+        
     }
     
     private void FixedUpdate()
@@ -181,7 +182,7 @@ public class CharacterController : MonoBehaviour
         isInCar = true;
         currentVehicle = nearbyCar;
 
-        Camera.main.GetComponent<CameraFollow>().target = currentVehicle.transform;
+        Camera.main.GetComponent<CameraFollow>().target = currentVehicle.gameObject;
 
         
         // Disable player movement physics

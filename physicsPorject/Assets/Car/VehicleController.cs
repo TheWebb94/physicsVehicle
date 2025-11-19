@@ -7,7 +7,7 @@ public class VehicleController : MonoBehaviour
     public float throttleAccellaration = 0.8f;       
     public float throttleDecay = 0.6f;
     public float brakeFactor = 2f;                   
-    public float reverseSpeed = 0.25f;
+    
 
     [Header("Steering")]
     [Range(-1f, 1f)] public float steering;          
@@ -21,21 +21,30 @@ public class VehicleController : MonoBehaviour
     public float steeringSpeed = 2f;           // How fast steering adjusts
     public float maxSteeringAngle = 30f;       // Maximum wheel turn angle in degrees
     public float turningForce = 500f;          // Lateral force for turning
+    private float maximumReverseSpeed = -0.35f;
     
     [Header("Handbrake")]
     public bool handbrake;
 
     
     private Rigidbody rb;
+    public bool playerIsInCar = false;
+    private GameObject player;
+    private CharacterController playerController;
+    [SerializeField] private GameObject exitLocation;
     
 
     void Start()
         {
             rb = GetComponent<Rigidbody>();
+            player = GameObject.FindGameObjectWithTag("Player");
+            playerController = player.GetComponent<CharacterController>();
         }
     
     public void UseVehicleController(GameObject currentVehicle)
     {
+        playerIsInCar = true;
+        
         HandleAccelleration();
 
         HandleDecelleration();
@@ -45,8 +54,25 @@ public class VehicleController : MonoBehaviour
         HandleHandbrake();
         
         ApplyMovementForces();
+
+        HandleExitingOfVehicle();
+
         Debug.Log(throttle);
     }
+
+    private void HandleExitingOfVehicle()
+    {
+        if (Input.GetKey(KeyCode.P))
+        {
+            playerIsInCar = false;
+            playerController.isInCar = false;
+            player.transform.position = exitLocation.transform.position;
+            playerController.currentVehicle = null;
+            playerController.mesh.SetActive(true);
+            playerController.rb.isKinematic = false;
+        }
+    }
+
 
     private void HandleHandbrake()
     {
@@ -85,12 +111,21 @@ public class VehicleController : MonoBehaviour
 
     private void HandleDecelleration()
     {
+        //decay throttle if no input
+        if (throttle < 0f)
+        {
+            throttle += throttleDecay * Time.deltaTime;
+        }
         // decelerate by decreasing throttle
         if (Input.GetKey(KeyCode.S))
         {
             if (throttle <= 0)
             {
-                throttle -= (throttleAccellaration / 2) * Time.deltaTime;
+                throttle -= throttleAccellaration * Time.deltaTime;
+                if (throttle < maximumReverseSpeed)
+                {
+                    throttle = maximumReverseSpeed;
+                }
             }
             else
             {
@@ -127,11 +162,11 @@ public class VehicleController : MonoBehaviour
         float currentSpeed = rb.linearVelocity.magnitude;
 
         // Apply forward force based on throttle
-        if (throttle > 0f)
-        {
-            Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
-            rb.AddForce(forwardForce, ForceMode.Acceleration);
-        }
+       
+        
+        Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
+        rb.AddForce(forwardForce, ForceMode.Acceleration);
+        
 
         // Apply turning force when steering and moving
         if (Mathf.Abs(steering) > 0.01f && currentSpeed > 0.5f)
