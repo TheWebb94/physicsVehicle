@@ -163,7 +163,7 @@ public class VehicleController : MonoBehaviour
         // Calculate current speed
         float currentSpeed = rb.linearVelocity.magnitude;
 
-        // Apply forward force based on throttle - only at grounded wheels
+        // Apply forward force based on throttle - only when wheels are grounded
         // Count grounded wheels
         int groundedWheelCount = 0;
         foreach (var wheel in wheels)
@@ -177,18 +177,9 @@ public class VehicleController : MonoBehaviour
         // Only apply force if at least one wheel is grounded
         if (groundedWheelCount > 0)
         {
-            // Divide force equally among grounded wheels
-            float forcePerWheel = motorForce * throttle * Time.deltaTime / groundedWheelCount;
-            Vector3 forwardForce = transform.forward * forcePerWheel;
-
-            // Apply force at each grounded wheel's suspension attachment point
-            foreach (var wheel in wheels)
-            {
-                if (wheel.IsGrounded)
-                {
-                    rb.AddForceAtPosition(forwardForce, wheel.transform.position, ForceMode.Acceleration);
-                }
-            }
+            // Apply force at center of mass to avoid unwanted torque
+            Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
+            rb.AddForce(forwardForce, ForceMode.Acceleration);
         }
         
 
