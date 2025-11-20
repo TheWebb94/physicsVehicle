@@ -32,6 +32,7 @@ public class VehicleController : MonoBehaviour
     private GameObject player;
     private CharacterController playerController;
     [SerializeField] private GameObject exitLocation;
+    private Wheel[] wheels;
     
 
     void Start()
@@ -39,6 +40,7 @@ public class VehicleController : MonoBehaviour
             rb = GetComponent<Rigidbody>();
             player = GameObject.FindGameObjectWithTag("Player");
             playerController = player.GetComponent<CharacterController>();
+            wheels = GetComponentsInChildren<Wheel>();
         }
     
     public void UseVehicleController(GameObject currentVehicle)
@@ -161,11 +163,33 @@ public class VehicleController : MonoBehaviour
         // Calculate current speed
         float currentSpeed = rb.linearVelocity.magnitude;
 
-        // Apply forward force based on throttle
-       
-        
-        Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
-        rb.AddForce(forwardForce, ForceMode.Acceleration);
+        // Apply forward force based on throttle - only at grounded wheels
+        // Count grounded wheels
+        int groundedWheelCount = 0;
+        foreach (var wheel in wheels)
+        {
+            if (wheel.IsGrounded)
+            {
+                groundedWheelCount++;
+            }
+        }
+
+        // Only apply force if at least one wheel is grounded
+        if (groundedWheelCount > 0)
+        {
+            // Divide force equally among grounded wheels
+            float forcePerWheel = motorForce * throttle * Time.deltaTime / groundedWheelCount;
+            Vector3 forwardForce = transform.forward * forcePerWheel;
+
+            // Apply force at each grounded wheel position
+            foreach (var wheel in wheels)
+            {
+                if (wheel.IsGrounded)
+                {
+                    rb.AddForceAtPosition(forwardForce, wheel.ContactPoint, ForceMode.Acceleration);
+                }
+            }
+        }
         
 
         // Apply turning force when steering and moving

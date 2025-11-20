@@ -35,13 +35,7 @@ using UnityEngine;
 
         if (isPlayerInCar)
         {
-
-
-
-            if (Input.GetKey(KeyCode.W))
-            {
-                rb.AddForce(transform.forward * 500f * Time.fixedDeltaTime, ForceMode.Acceleration);
-            }
+            // Force application is now handled by VehicleController at wheel positions
             throttle = vc.throttle;
             steering = vc.steering;
             brakeFactor = vc.brakeFactor;

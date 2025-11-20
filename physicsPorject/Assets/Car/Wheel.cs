@@ -9,7 +9,7 @@ public class Wheel : MonoBehaviour
     [Header("Suspension")]
     [SerializeField] private float restLength = 0.35f;        // meters
     [SerializeField] private float springStrength = 35000f;   // N/m
-    [SerializeField] private float damperStrength = 4500f;    // N·s/m
+    [SerializeField] private float damperStrength = 4500f;    // Nï¿½s/m
     [SerializeField] private float wheelRadius = 0.34f;       // meters
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private bool drawDebug;
@@ -17,6 +17,10 @@ public class Wheel : MonoBehaviour
     private Rigidbody carBody;
     private GameObject wheelVisual;
     private float lastLength;
+
+    // Public properties for force application
+    public bool IsGrounded { get; private set; }
+    public Vector3 ContactPoint { get; private set; }
 
     private void Awake()
     {
@@ -53,6 +57,10 @@ public class Wheel : MonoBehaviour
 
         if (hitGround)
         {
+            // Update ground contact state
+            IsGrounded = true;
+            ContactPoint = hit.point;
+
             // distance from attach point to contact minus wheel radius
             currentLength = Mathf.Clamp(hit.distance - wheelRadius, 0f, restLength);
             float compression = restLength - currentLength; 
@@ -70,7 +78,7 @@ public class Wheel : MonoBehaviour
             // Apply upwards along the strut axis at the attach point
             carBody.AddForceAtPosition(transform.up * totalForce, transform.position, ForceMode.Force);
 
-            // Move visual to match strut length (negative local Y goes “down” along -up)
+            // Move visual to match strut length (negative local Y goes ï¿½downï¿½ along -up)
             if (wheelVisual)
             {
                 var lp = wheelVisual.transform.localPosition;
@@ -86,6 +94,9 @@ public class Wheel : MonoBehaviour
         }
         else
         {
+            // Update ground contact state
+            IsGrounded = false;
+
             // Airborne: show wheel hanging at rest length
             if (wheelVisual)
             {
