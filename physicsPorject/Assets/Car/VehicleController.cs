@@ -181,12 +181,12 @@ public class VehicleController : MonoBehaviour
             float forcePerWheel = motorForce * throttle * Time.deltaTime / groundedWheelCount;
             Vector3 forwardForce = transform.forward * forcePerWheel;
 
-            // Apply force at each grounded wheel position
+            // Apply force at each grounded wheel's suspension attachment point
             foreach (var wheel in wheels)
             {
                 if (wheel.IsGrounded)
                 {
-                    rb.AddForceAtPosition(forwardForce, wheel.ContactPoint, ForceMode.Acceleration);
+                    rb.AddForceAtPosition(forwardForce, wheel.transform.position, ForceMode.Acceleration);
                 }
             }
         }
