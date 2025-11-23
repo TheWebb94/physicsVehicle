@@ -18,9 +18,9 @@ public class VehicleController : MonoBehaviour
     // Movement parameters
     public float motorForce = 15000f;          // Force applied when accelerating
     public float maxSpeed = 50f;               // Maximum vehicle speed
-    public float steeringSpeed = 2f;           // How fast steering adjusts
+    public float steeringSpeed = 4f;           // How fast steering adjusts (increased for better response)
     public float maxSteeringAngle = 30f;       // Maximum wheel turn angle in degrees
-    public float turningForce = 500f;          // Lateral force for turning
+    public float turningForce = 800f;          // Lateral force for turning (increased for sharper turns)
     private float maximumReverseSpeed = -0.35f;
     
     [Header("Handbrake")]
@@ -171,18 +171,25 @@ public class VehicleController : MonoBehaviour
         // Apply turning force when steering and moving
         if (Mathf.Abs(steering) > 0.01f && currentSpeed > 0.5f)
         {
+            // Detect if moving forward or backward
+            float forwardDot = Vector3.Dot(rb.linearVelocity.normalized, transform.forward);
+            bool isMovingBackward = forwardDot < 0;
+
+            // Invert steering when moving backward (realistic car behavior)
+            float effectiveSteering = isMovingBackward ? -steering : steering;
+
             // Calculate the steering angle in degrees
-            float steeringAngle = steering * maxSteeringAngle;
+            float steeringAngle = effectiveSteering * maxSteeringAngle;
 
             // Calculate turning force - stronger when moving faster
             float speedFactor = Mathf.Clamp01(currentSpeed / maxSpeed);
-            Vector3 lateralForce = transform.right * steering * turningForce * speedFactor * Time.deltaTime;
+            Vector3 lateralForce = transform.right * effectiveSteering * turningForce * speedFactor * Time.deltaTime;
 
             // Apply the lateral force for turning
             rb.AddForce(lateralForce, ForceMode.Acceleration);
 
             // Also rotate the vehicle body based on steering
-            float rotationAmount = steering * currentSpeed * Time.deltaTime;
+            float rotationAmount = effectiveSteering * currentSpeed * Time.deltaTime;
             rb.MoveRotation(rb.rotation * Quaternion.Euler(0f, rotationAmount, 0f));
         }
 
