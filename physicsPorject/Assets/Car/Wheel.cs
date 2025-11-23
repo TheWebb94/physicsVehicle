@@ -73,18 +73,19 @@ public class Wheel : MonoBehaviour
 
         // Apply rotation based on wheel type
         // Left wheels: rotate around local X-axis for rolling, local Y-axis for steering
-        // Right wheels: same but account for initial 180-degree flip
-        Quaternion rollingRotation = Quaternion.Euler(wheelRotationAngle, 0f, 0f);
+        // Right wheels: need negated rotation due to 180-degree flip
         Quaternion steeringRotation = Quaternion.Euler(0f, steeringAngle, 0f);
 
         if (wheelType == WheelType.FrontRight || wheelType == WheelType.BackRight)
         {
-            // Right side wheels are flipped 180 degrees on Y-axis
+            // Right side wheels are flipped 180 degrees on Y-axis, so negate the roll
+            Quaternion rollingRotation = Quaternion.Euler(-wheelRotationAngle, 0f, 0f);
             wheelVisual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * steeringRotation * rollingRotation;
         }
         else
         {
             // Left side wheels
+            Quaternion rollingRotation = Quaternion.Euler(wheelRotationAngle, 0f, 0f);
             wheelVisual.transform.localRotation = steeringRotation * rollingRotation;
         }
     }
