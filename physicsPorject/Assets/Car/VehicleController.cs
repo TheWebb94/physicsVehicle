@@ -26,7 +26,10 @@ public class VehicleController : MonoBehaviour
     [Header("Handbrake")]
     public bool handbrake;
 
-    
+    [Header("Angular Drag")]
+    [SerializeField] private Vector3 customAngularDrag = new Vector3(5f, 2f, 5f); // Roll, Yaw, Pitch
+    [SerializeField] private bool useCustomAngularDrag = true;
+
     private Rigidbody rb;
     public bool playerIsInCar = false;
     private GameObject player;
@@ -40,11 +43,29 @@ public class VehicleController : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player");
             playerController = player.GetComponent<CharacterController>();
 
-            // Set drag values to prevent infinite spinning
+            // Set drag values
             rb.linearDamping = 0.5f;   // Slight linear drag for stability
-            rb.angularDamping = 3.5f;  // Angular drag to stop spinning after collisions
+
+            // Only use built-in angular damping if not using custom
+            if (!useCustomAngularDrag)
+            {
+                rb.angularDamping = 3.5f;  // Fallback: basic angular drag
+            }
+            else
+            {
+                rb.angularDamping = 0f;    // Disable built-in, we'll handle it ourselves
+            }
         }
-    
+
+    void FixedUpdate()
+    {
+        // Apply custom angular drag every physics frame
+        if (useCustomAngularDrag)
+        {
+            ApplyCustomAngularDrag();
+        }
+    }
+
     public void UseVehicleController(GameObject currentVehicle)
     {
         playerIsInCar = true;
@@ -208,6 +229,21 @@ public class VehicleController : MonoBehaviour
         {
             rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
         }
+    }
+
+    private void ApplyCustomAngularDrag()
+    {
+        if (rb == null) return;
+
+        // Get current angular velocity
+        Vector3 angularVelocity = rb.angularVelocity;
+
+        // Apply drag torque opposing the rotation
+        // Per-axis damping: different values for roll (X), yaw (Y), and pitch (Z)
+        Vector3 dampingTorque = -Vector3.Scale(angularVelocity, customAngularDrag);
+
+        // Apply the torque
+        rb.AddTorque(dampingTorque, ForceMode.Acceleration);
     }
 }
 
