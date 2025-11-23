@@ -31,6 +31,7 @@ public class Physics : MonoBehaviour
     {
         ApplyGravity();
         ApplyDrag();
+        ApplyAngularDrag();
         ApplyFriction();
     }
 
@@ -90,5 +91,14 @@ public class Physics : MonoBehaviour
         //Debug.Log(playerDragForce.crossSectionalArea);
 
         return  playerDragForce.crossSectionalArea;
+    }
+
+    private void ApplyAngularDrag()
+    {
+        if (playerDragForce != null)
+        {
+            Vector3 angularDragTorque = playerDragForce.angularDragTorque;
+            rb.AddTorque(angularDragTorque, ForceMode.Force);
+        }
     }
 }
