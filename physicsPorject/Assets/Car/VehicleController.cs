@@ -39,6 +39,10 @@ public class VehicleController : MonoBehaviour
             rb = GetComponent<Rigidbody>();
             player = GameObject.FindGameObjectWithTag("Player");
             playerController = player.GetComponent<CharacterController>();
+
+            // Set drag values to prevent infinite spinning
+            rb.linearDamping = 0.5f;   // Slight linear drag for stability
+            rb.angularDamping = 3.5f;  // Angular drag to stop spinning after collisions
         }
     
     public void UseVehicleController(GameObject currentVehicle)
