@@ -9,7 +9,7 @@ public class Wheel : MonoBehaviour
     [Header("Suspension")]
     [SerializeField] private float restLength = 0.35f;        // meters
     [SerializeField] private float springStrength = 35000f;   // N/m
-    [SerializeField] private float damperStrength = 4500f;    // N·s/m
+    [SerializeField] private float damperStrength = 4500f;    // Nï¿½s/m
     [SerializeField] private float wheelRadius = 0.34f;       // meters
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private bool drawDebug;
@@ -18,10 +18,15 @@ public class Wheel : MonoBehaviour
     private GameObject wheelVisual;
     private float lastLength;
 
+    // Wheel rotation
+    private float wheelRotationAngle = 0f;
+    private VehicleController vehicleController;
+
     private void Awake()
     {
         // Find the car rigidbody on a parent
         carBody = GetComponentInParent<Rigidbody>();
+        vehicleController = GetComponentInParent<VehicleController>();
     }
 
     private void Start()
@@ -39,8 +44,7 @@ public class Wheel : MonoBehaviour
     private void FixedUpdate()
     {
         ApplySuspensionForces();
-
-       
+        UpdateWheelRotation();
     }
 
     private void ApplySuspensionForces()
@@ -70,7 +74,7 @@ public class Wheel : MonoBehaviour
             // Apply upwards along the strut axis at the attach point
             carBody.AddForceAtPosition(transform.up * totalForce, transform.position, ForceMode.Force);
 
-            // Move visual to match strut length (negative local Y goes “down” along -up)
+            // Move visual to match strut length (negative local Y goes ï¿½downï¿½ along -up)
             if (wheelVisual)
             {
                 var lp = wheelVisual.transform.localPosition;
@@ -101,6 +105,50 @@ public class Wheel : MonoBehaviour
         }
 
         lastLength = currentLength;
+    }
+
+    private void UpdateWheelRotation()
+    {
+        if (wheelVisual == null || carBody == null) return;
+
+        // Calculate rolling rotation based on velocity
+        // Distance traveled = velocity * time
+        // Rotation angle = distance / radius (in radians, then convert to degrees)
+        Vector3 localVelocity = transform.InverseTransformDirection(carBody.linearVelocity);
+        float forwardSpeed = localVelocity.z; // Forward speed in local space
+
+        float distanceTraveled = forwardSpeed * Time.fixedDeltaTime;
+        float rotationDelta = (distanceTraveled / wheelRadius) * Mathf.Rad2Deg;
+        wheelRotationAngle += rotationDelta;
+
+        // Get steering angle (only for front wheels)
+        float steeringAngle = 0f;
+        if (vehicleController != null && IsFrontWheel())
+        {
+            steeringAngle = vehicleController.steering * vehicleController.maxSteeringAngle;
+        }
+
+        // Apply rotation based on wheel type
+        // Left wheels: rotate around local X-axis for rolling, local Y-axis for steering
+        // Right wheels: same but account for initial 180-degree flip
+        Quaternion rollingRotation = Quaternion.Euler(wheelRotationAngle, 0f, 0f);
+        Quaternion steeringRotation = Quaternion.Euler(0f, steeringAngle, 0f);
+
+        if (wheelType == WheelType.FrontRight || wheelType == WheelType.BackRight)
+        {
+            // Right side wheels are flipped 180 degrees on Y-axis
+            wheelVisual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * steeringRotation * rollingRotation;
+        }
+        else
+        {
+            // Left side wheels
+            wheelVisual.transform.localRotation = steeringRotation * rollingRotation;
+        }
+    }
+
+    private bool IsFrontWheel()
+    {
+        return wheelType == WheelType.FrontLeft || wheelType == WheelType.FrontRight;
     }
 
     private Quaternion GetRotationForWheelType()
