@@ -1,50 +1,67 @@
 using UnityEngine;
+using UnityEngine.Rendering.UI;
 
 public class VehicleController : MonoBehaviour
 {
-    [Header("Throttle / Brake")]
-    [Range(0f, 1f)] public float throttle;          
-    public float throttleAccellaration = 0.8f;       
-    public float throttleDecay = 0.6f;
-    public float brakeFactor = 2f;                   
-    
+    [Header("Throttle / Brake")] [Range(0f, 1f)]
+    public float throttle;
 
-    [Header("Steering")]
-    [Range(-1f, 1f)] public float steering;          
-    public float steerRate = 2.5f;
-    public float steerReturnRate = 3.0f;
-    public float steerDeadzone = 0.02f;
+    public float throttleAccellaration = 0.8f;
+    public float throttleDecay = 0.6f;
+    public float brakeFactor = 2f;
+
+
+    [Header("Steering")] [Range(-1f, 1f)] public float steering;
+    //public float steerRate = 2.5f;
+    //public float steerReturnRate = 3.0f;    3 variables not inn use? old iplmentaion
+    //public float steerDeadzone = 0.02f;
 
     // Movement parameters
-    public float motorForce = 15000f;          // Force applied when accelerating
-    public float maxSpeed = 50f;               // Maximum vehicle speed
-    public float steeringSpeed = 2f;           // How fast steering adjusts
-    public float maxSteeringAngle = 30f;       // Maximum wheel turn angle in degrees
-    public float turningForce = 500f;          // Lateral force for turning
+    public float motorForce = 15000f; // Force applied when accelerating
+    public float maxSpeed = 50f; // Maximum vehicle speed
+    public float steeringSpeed = 4f; // How fast steering adjusts
+    public float maxSteeringAngle = 30f; // Maximum wheel turn angle in degrees
+    public float turningForce = 800f; // Lateral force for turning
     private float maximumReverseSpeed = -0.35f;
-    
-    [Header("Handbrake")]
+
+    [Header("Handbrake")] 
     public bool handbrake;
 
+    [Header("Angular Drag")]
+    [SerializeField] private Vector3 customAngularDrag = new Vector3(5f, 2f, 5f); 
+    [SerializeField] private bool useCustomAngularDrag = true;
     
     private Rigidbody rb;
     public bool playerIsInCar = false;
     private GameObject player;
     private CharacterController playerController;
     [SerializeField] private GameObject exitLocation;
-    
+    private Wheel[] wheels;
 
     void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerController = player.GetComponent<CharacterController>();
+        wheels = GetComponentsInChildren<Wheel>();
+        // Set drag values
+        rb.linearDamping = 0.5f;   // Slight linear drag for stability
+        
+        // Only use built-in angular damping if not using custom
+        if (!useCustomAngularDrag)
         {
-            rb = GetComponent<Rigidbody>();
-            player = GameObject.FindGameObjectWithTag("Player");
-            playerController = player.GetComponent<CharacterController>();
+            rb.angularDamping = 3.5f;  // basic angular drag for scenery/world objects/ player
         }
-    
+        else
+        {
+            rb.angularDamping = 0f;    // Disable built-in for use on car 
+        }
+    }
+
     public void UseVehicleController(GameObject currentVehicle)
     {
         playerIsInCar = true;
-        
+
         HandleAccelleration();
 
         HandleDecelleration();
@@ -52,12 +69,27 @@ public class VehicleController : MonoBehaviour
         HandleSteering();
 
         HandleHandbrake();
-        
+
         ApplyMovementForces();
 
-        HandleExitingOfVehicle();
+        ApplyCustomAngularDrag();
 
-        Debug.Log(throttle);
+        HandleExitingOfVehicle();
+        
+    }
+
+    private void ApplyCustomAngularDrag()
+    {
+        if (rb == null) return;
+        
+        // Get current angular velocity
+        Vector3 angularVelocity = rb.angularVelocity;
+
+        // Apply drag torque opposing the rotation
+        Vector3 dampingTorque = -Vector3.Scale(angularVelocity, customAngularDrag);
+
+        // Apply the torque
+        rb.AddTorque(dampingTorque, ForceMode.Acceleration);
     }
 
     private void HandleExitingOfVehicle()
@@ -78,7 +110,7 @@ public class VehicleController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            handbrake  = true;  
+            handbrake = true;
         }
     }
 
@@ -116,6 +148,7 @@ public class VehicleController : MonoBehaviour
         {
             throttle += throttleDecay * Time.deltaTime;
         }
+
         // decelerate by decreasing throttle
         if (Input.GetKey(KeyCode.S))
         {
@@ -161,41 +194,69 @@ public class VehicleController : MonoBehaviour
         // Calculate current speed
         float currentSpeed = rb.linearVelocity.magnitude;
 
-        // Apply forward force based on throttle
-       
-        
-        Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
-        rb.AddForce(forwardForce, ForceMode.Acceleration);
-        
+        // Apply forward force based on throttle - only when wheels are grounded
+        // Count grounded wheels
+        int groundedWheelCount = 0;
 
-        // Apply turning force when steering and moving
-        if (Mathf.Abs(steering) > 0.01f && currentSpeed > 0.5f)
+        foreach (var wheel in wheels)
         {
-            // Calculate the steering angle in degrees
-            float steeringAngle = steering * maxSteeringAngle;
-
-            // Calculate turning force - stronger when moving faster
-            float speedFactor = Mathf.Clamp01(currentSpeed / maxSpeed);
-            Vector3 lateralForce = transform.right * steering * turningForce * speedFactor * Time.deltaTime;
-
-            // Apply the lateral force for turning
-            rb.AddForce(lateralForce, ForceMode.Acceleration);
-
-            // Also rotate the vehicle body based on steering
-            float rotationAmount = steering * currentSpeed * Time.deltaTime;
-            rb.MoveRotation(rb.rotation * Quaternion.Euler(0f, rotationAmount, 0f));
+            if (wheel.isGrounded)
+            {
+                groundedWheelCount++;
+            }
         }
 
-        // Apply handbrake - reduce velocity
-        if (handbrake)
+        // Only apply force if at least one wheel is grounded
+        if (groundedWheelCount > 0)
         {
-            rb.linearVelocity *= 0.95f; // Reduce velocity by 5% each frame
-        }
+            // Apply force at center of mass to avoid unwanted torque
+            Vector3 forwardForce = transform.forward * motorForce * throttle * Time.deltaTime;
 
-        // Clamp speed to max speed
-        if (currentSpeed > maxSpeed)
-        {
-            rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+            rb.AddForce(forwardForce, ForceMode.Acceleration);
+
+            // Apply turning force when steering and moving
+            if (Mathf.Abs(steering) > 0.01f && currentSpeed > 0.5f)
+            {
+                // Detect if moving forward or backward
+
+                float forwardDot = Vector3.Dot(rb.linearVelocity.normalized, transform.forward);
+
+                bool isMovingBackward = forwardDot < 0;
+
+ 
+
+                // Invert steering when moving backward (realistic car behavior)
+
+                float effectiveSteering = isMovingBackward ? -steering : steering;
+
+ 
+
+                // Calculate the steering angle in degrees
+                float steeringAngle = effectiveSteering * maxSteeringAngle;
+                
+                // Calculate turning force - stronger when moving faster
+                float speedFactor = Mathf.Clamp01(currentSpeed / maxSpeed);
+                Vector3 lateralForce = transform.right * effectiveSteering * turningForce * speedFactor * Time.deltaTime;
+
+                // Apply the lateral force for turning
+                rb.AddForce(lateralForce, ForceMode.Acceleration);
+                
+                // Also rotate the vehicle body based on steering
+                float rotationAmount = effectiveSteering * currentSpeed * Time.deltaTime;
+                rb.MoveRotation(rb.rotation * Quaternion.Euler(0f, rotationAmount, 0f));
+            }
+
+            // Apply handbrake - reduce velocity
+            if (handbrake)
+            {
+                rb.linearVelocity *= 0.95f; // Reduce velocity by 5% each frame
+            }
+
+            // Clamp speed to max speed
+            if (currentSpeed > maxSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+            }
         }
     }
 }

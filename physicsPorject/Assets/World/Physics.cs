@@ -13,7 +13,7 @@ public class Physics : MonoBehaviour
     public float dragCoefficient;        // drag coefficient
     private float airDensity;
     [SerializeField] private bool useComplexDrag;
-    [SerializeField] private bool isPlayer;
+    [SerializeField] public bool isPlayer;
     [SerializeField] CharacterController playerRef;
 
     public float friction = 5f;
@@ -21,6 +21,7 @@ public class Physics : MonoBehaviour
     void Awake()
     {
         airDensity = 1.225f;        // p (air density) = 1.225 kg/m^3 at sea level 
+                                    // maybe add a change in air density based on players y value (if impplementing a flying vehicle)
         dragCoefficient = 0.3f; /* Cd (drag coefficient)    = 1.0 (approximate for a human)
                                                             = 0.47 (approximate for a sphere)
                                                             = 1.05 (approximate for a cube)
@@ -31,7 +32,17 @@ public class Physics : MonoBehaviour
     {
         ApplyGravity();
         ApplyDrag();
+        ApplyAngularDrag();
         ApplyFriction();
+    }
+
+    private void ApplyAngularDrag()
+    {
+        if (playerDragForce != null)
+        {
+            Vector3 angularDragTorque = playerDragForce.angularDragTorque;
+            rb.AddTorque(angularDragTorque, ForceMode.Force);
+        }
     }
 
     private void ApplyFriction()

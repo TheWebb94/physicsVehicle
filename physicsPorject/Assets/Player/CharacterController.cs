@@ -171,7 +171,6 @@ public class CharacterController : MonoBehaviour
         {
             if (nearbyCar != null && !isInCar)
             {
-                Debug.Log("E key pressed");  
                 EnterCar();
             }
         }

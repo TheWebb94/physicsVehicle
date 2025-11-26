@@ -12,7 +12,7 @@ using UnityEngine;
 
         [SerializeField] private GameObject player;  
         private VehicleController vc;
-    private Rigidbody rb;
+        private Rigidbody rb;
         //private Engine engine;
         //private Suspension suspension;
         private Wheel[] wheels;
@@ -28,20 +28,14 @@ using UnityEngine;
 
             vc = GetComponent<VehicleController>();
             wheels = GetComponentsInChildren<Wheel>();
-            Debug.Log(wheels.Length + "wheels fond");       
+            
     }
+    
     private void FixedUpdate()
     {       //testin sspension
 
         if (isPlayerInCar)
         {
-
-
-
-            if (Input.GetKey(KeyCode.W))
-            {
-                rb.AddForce(transform.forward * 500f * Time.fixedDeltaTime, ForceMode.Acceleration);
-            }
             throttle = vc.throttle;
             steering = vc.steering;
             brakeFactor = vc.brakeFactor;
