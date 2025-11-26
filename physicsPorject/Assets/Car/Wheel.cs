@@ -9,13 +9,8 @@ public class Wheel : MonoBehaviour
     [SerializeField] WheelType wheelType;
 
     [Header("Suspension")]
-<<<<<<< HEAD
     [SerializeField] private float restLength = 0.8f;        // meters
     [SerializeField] private float springStrength = 15000f;   // N/m
-=======
-    [SerializeField] private float restLength = 0.35f;        // meters
-    [SerializeField] private float springStrength = 35000f;   // N/m
->>>>>>> origin/claude/plan-next-features-01CCqJKVgSBJFq6Ve3ncmehC
     [SerializeField] private float damperStrength = 4500f;    // N·s/m
     [SerializeField] private float wheelRadius = 0.34f;       // meters
     [SerializeField] private LayerMask groundMask;
@@ -25,13 +20,6 @@ public class Wheel : MonoBehaviour
     private GameObject wheelVisual;
     private float lastLength;
     
-    private float wheelRotationAngle = 0f;
-    private VehicleController vc;
-
-    // Public properties for force application
-    public bool isGrounded { get; private set; }
-    public Vector3 ContactPoint { get; private set; }
-
     private float wheelRotationAngle = 0f;
     private VehicleController vc;
 
@@ -63,49 +51,6 @@ public class Wheel : MonoBehaviour
     {
         ApplySuspensionForces();
         UpdateWheelRotation();
-<<<<<<< HEAD
-=======
-    }
-
-    private void UpdateWheelRotation()
-    {
-        if (wheelVisual == null || carBody == null) return;
-
-        // Calculate rolling rotation based on velocity
-        // Distance traveled = velocity * time
-        // Rotation angle = distance / radius (in radians, then convert to degrees)
-        Vector3 localVelocity = transform.InverseTransformDirection(carBody.linearVelocity);
-
-        float distanceTraveled = localVelocity.z * Time.fixedDeltaTime;
-        float rotationDelta = (distanceTraveled / wheelRadius) * Mathf.Rad2Deg;
-
-        wheelRotationAngle += rotationDelta;
-
-        // Get steering angle (only for front wheels)
-        float steeringAngle = 0f;
-        if (vc != null && IsFrontWheel())
-        {
-            steeringAngle = vc.steering * vc.maxSteeringAngle;
-        }
-
-        // Apply rotation based on wheel type
-        // Left wheels: rotate around local X-axis for rolling, local Y-axis for steering
-        // Right wheels: need negated rotation due to 180-degree flip
-        Quaternion steeringRotation = Quaternion.Euler(0f, steeringAngle, 0f);
-
-        if (wheelType == WheelType.FrontRight || wheelType == WheelType.BackRight)
-        {
-            // Right side wheels are flipped 180 degrees on Y-axis, so negate the roll
-            Quaternion rollingRotation = Quaternion.Euler(-wheelRotationAngle, 0f, 0f);
-            wheelVisual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * steeringRotation * rollingRotation;
-        }
-        else
-        {
-            // Left side wheels
-            Quaternion rollingRotation = Quaternion.Euler(wheelRotationAngle, 0f, 0f);
-            wheelVisual.transform.localRotation = steeringRotation * rollingRotation;
-        }
->>>>>>> origin/claude/plan-next-features-01CCqJKVgSBJFq6Ve3ncmehC
     }
 
  
