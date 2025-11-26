@@ -102,4 +102,13 @@ public class Physics : MonoBehaviour
 
         return  playerDragForce.crossSectionalArea;
     }
+
+    private void ApplyAngularDrag()
+    {
+        if (playerDragForce != null)
+        {
+            Vector3 angularDragTorque = playerDragForce.angularDragTorque;
+            rb.AddTorque(angularDragTorque, ForceMode.Force);
+        }
+    }
 }

@@ -6,8 +6,12 @@ public class SpawnRaycaster : MonoBehaviour
     [SerializeField] private float rayLength = 5f;
     public bool hitPlayer = false;
     [SerializeField] private LayerMask targetMask;
+<<<<<<< HEAD
 
     [SerializeField] private string targetTag = "Player"; 
+=======
+    [SerializeField] private string targetTag = "Player"; // Configurable target tag
+>>>>>>> origin/claude/plan-next-features-01CCqJKVgSBJFq6Ve3ncmehC
     [SerializeField] private float originOffset = 0.05f;
     public Vector3 vectorNormal;
     [SerializeField] public bool drawDebugLines;
