@@ -57,9 +57,13 @@ public class DragForceManager : MonoBehaviour
         void FixedUpdate()
         {
             ResetValues();
+
             CountNodeHits();
+
             FindCumulativeNormal();
+
             CalculateAngularDragTorque();
+
             SetValues();
 
         }
