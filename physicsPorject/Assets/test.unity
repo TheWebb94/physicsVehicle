@@ -217,15 +217,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd15fd48f61ae084f8def94fb0d98ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayLength: 5
+  rayLength: 20
   hitPlayer: 0
   targetMask:
     serializedVersion: 2
-    m_Bits: 0
-  targetTag: Player
+    m_Bits: 256
+  targetTag: Car
   originOffset: 0.05
   vectorNormal: {x: 0, y: 0, z: 0}
-  drawDebugLines: 0
+  drawDebugLines: 1
 --- !u!1 &122319118
 GameObject:
   m_ObjectHideFlags: 0
@@ -2704,7 +2704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4735839243174642, guid: f8b49f9d229541d43b30476c740c2477, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.11
+      value: 2.12
       objectReference: {fileID: 0}
     - target: {fileID: 4735839243174642, guid: f8b49f9d229541d43b30476c740c2477, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5227,37 +5227,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1051987732}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1061862202
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1061862203}
-  m_Layer: 0
-  m_Name: Land Rover
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1061862203
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1061862202}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1079802696
 GameObject:
   m_ObjectHideFlags: 0
@@ -6899,7 +6868,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 1998083132}
-  leadDistance: 4
+  playerRef: {fileID: 1998083135}
+  leadDistance: 10
+  followSmooth: 10
 --- !u!114 &1483529162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6913,8 +6884,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cubesParent: {fileID: 1483529160}
-  cubeSize: 0.1
-  gridWidth: 2.5
+  cubeSize: 0.2
+  gridWidth: 4
   cubePrefab: {fileID: 84268041}
   yOffset: 0.5
   cubesArray: []
@@ -6936,7 +6907,7 @@ MonoBehaviour:
   hitCount: 0
   rayLength: 3
   crossSectionalArea: 0
-  drawDebugLines: 0
+  drawDebugLines: 1
   angularDragCoefficient: 0.3
   nodeArea: 0.01
 --- !u!1 &1528234807
@@ -7377,7 +7348,7 @@ MonoBehaviour:
   playerDragForce: {fileID: 0}
   A: 0
   dragCoefficient: 0
-  useComplexDrag: 0
+  useComplexDrag: 1
   isPlayer: 0
   playerRef: {fileID: 0}
   friction: 5
@@ -9654,7 +9625,7 @@ MonoBehaviour:
   playerDragForce: {fileID: 1483529163}
   A: 0
   dragCoefficient: 0
-  useComplexDrag: 1
+  useComplexDrag: 0
   isPlayer: 0
   playerRef: {fileID: 1998083135}
   friction: 1
@@ -10139,7 +10110,6 @@ SceneRoots:
   - {fileID: 2001070890}
   - {fileID: 1483529160}
   - {fileID: 84268042}
-  - {fileID: 1061862203}
   - {fileID: 713422144}
   - {fileID: 1998083130}
   - {fileID: 471510441}
